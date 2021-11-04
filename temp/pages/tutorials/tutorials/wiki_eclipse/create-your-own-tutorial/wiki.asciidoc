@@ -1,0 +1,378 @@
+= Create your own tutorial
+
+In this scenario, you will learn how to create your own tutorial using the tutorial compiler.
+
+
+## Prerequisites
+
+* GitHub account
+
+
+## Learning goals
+
+* You will learn how to set up the environment and get an introduction to the syntax for writing your own tutorial.
+
+You can find the documentation of the tutorial compiler here:
+
+https://github.com/devonfw-forge/tutorial-compiler/wiki
+
+
+
+The definition of each step of this tutorial can be found at https://github.com/devonfw-tutorials/tutorials/tree/main/create-your-own-tutorial/. 
+
+Feel free to report any errors to us or fix them yourself. Errors can be reported by creating an issue in the https://github.com/devonfw-tutorials/tutorials/issues[tutorials repository]. To fix the error fork the repository and create a pull request. Errors in the wiki can be reported and fixed in the https://github.com/devonfw-tutorials/tutorial-compiler[Tutorial-compiler repository].
+You can find a description of what to look for when creating a pull request at the devonfw contribution guide: https://devonfw.com/website/pages/community/community.html#community.asciidoc_contributing-to-devonfw. If you want to create a tutorial you can start with the https://katacoda.com/devonfw/scenarios/create-your-own-tutorial[katacoda tutorial] and read the description for creating your own tutorials: https://github.com/devonfw-tutorials/tutorials/wiki/Development.
+
+== Fork the tutorials repository
+# Setup your workspace
+Let's start!
+
+First of all, go to the tutorials repository on GitHub:
+
+https://github.com/devonfw-tutorials/tutorials
+
+Fork the repository by clicking on the 'Fork' button.
+This will create a copy of the repository in your own GitHub account. You will find it in 'Your repositories'.
+
+ 
+
+image::images/fork.jpg[]
+
+
+Open the forked repository in your GitHub account and copy the repository URL as shown in image below.
+
+
+image::images/clone_code.jpg[]
+
+
+
+
+
+
+
+== Clone the repository
+Paste the URL to the 'git clone' command to clone the repostitory. For this tutorial we will use the original tutorials repository of the 'devonfw-tutorials' GitHub account to show the workflow of creating the tutorial.
+
+When you run the command on your machine, you will of course need to customize the URL and add your personal GitHub name. So the command will be `git clone https://github.com/YourName/tutorials.git`.
+
+
+==== Prerequisites
+* You need to have Git installed. You can download Git https://git-scm.com/downloads[here] for your OS and install it by following the instructions.
+
+==== Download
+Open a terminal in your current workspace.
+
+Firstly, you have to move to the directory where the repository should be cloned to.
+If the directory does not exist yet, you can create it by using the `mkdir` command in the terminal.
+In this case execute `mkdir -p C:\devonfw\workspaces\main\tutorial-compiler\build\working\`.
+
+After that, move to the target directory by executing `cd  C:\devonfw\workspaces\main\tutorial-compiler\build\working\` in the terminal.
+
+To clone a Git repository execute `git clone https://github.com/devonfw-tutorials/tutorials.git` in the terminal.
+
+
+
+== Create a new branch
+ 
+
+Create a new branch inside the cloned repository.
+
+Navigate into the tutorials directory.
+
+`cd tutorials`{{execute T1}}
+
+Create a new branch for your tutorial and switch into this branch.
+
+`git branch tutorial/myOwnTutorial`{{execute T1}}
+
+`git checkout tutorial/myOwnTutorial`{{execute T1}}
+
+
+
+
+
+
+Now you can start to create the tutorial. This will be shown in the next steps.
+
+
+
+
+=== Create the file index.asciidoc
+
+# Create the tutorial
+
+Each tutorial is located in its own directory and consists of an asciidoc file, in which the tutorial is specified. The file is always named 'index.asciidoc'.
+
+So create a new folder in inside the tutorials directory and the file for the tutorial.
+
+
+==== Prerequisites
+* Existing folder you want to create the file. (If the folder doesn't exist you can create it from with the editor).
+* Any Editor that can edit files
+
+==== Creating index.asciidoc in any Editor
+
+Create index.asciidoc in any Editor.
+
+Opening a new file can be done by going to the file context menu in the top left corner of the editor and select *New* or *New File* or mostly also the keyboard shortcut ctrl+n will also work.
+The editor opens a new editor window for an untitled file that can be edited now.
+
+The next step is to save the file by selecting *Save* or *Save as* in the file context menu or by using the keyboard shortcut ctrl+s.
+A file explorer window opens.
+You should check if you are currently in the right directory where you want to save *tutorials/myTutorial/index.asciidoc*. 
+Select the directory `tutorials/myTutorial`. If the directory does not exist, create the missing folders or run through the previous steps from the wiki again.
+To save the file specify the name of the file. Paste `index.asciidoc` in the text field *File name:*. 
+The last step is to save the file with the *Save* button in the bottom right corner and index.asciidoc has been created.
+
+
+== Create a pull request
+ 
+
+Before starting write content into the tutorial, you have to create a pull request from your newly created branch into the main repository.
+This has the advantage that your tutorial will automatically be build and pushed to https://katacoda.com/devonfw-dev. So you can directly test it.
+
+For this step you need to open you local terminal at your forked and cloned &#39;tutorials&#39; folder and run the following commands:
+1. &#39;git add .&#39; 
+2. &#39;git commit -m &#34;initial commit for tutorial myTutorial&#34;&#39;
+3. &#39;git push&#39;
+
+This will save all the changes and push them into your tutorials GitHub repository. 
+
+Switch to your browser and open:
+https://github.com/devonfw-tutorials/tutorials
+
+Click on &#39;Pull requests&#39; &gt; &#39;New pull request&#39;.
+
+
+image::images/pull_request.jpg[]
+
+
+You might have to click on &#39;compare across forks&#39;.
+
+
+image::images/compare.jpg[]
+
+
+Select
+
+    * base repository: devonfw-tutorials
+    * base: main
+    * head repository: [your username]/tutorials
+    * compare: [your branch name]
+
+and finally create the pull request by clicking on &#39;Create pull request&#39;.
+
+Write &#39;WIP:&#39; in front of the pull request title to show that you are still working on this pull request. &#39;WIP&#39; stands for &#39;Work In Progress&#39;.
+
+A workflow in the tutorials repository will build the tutorial. Currently the pipeline will fails because a tutorial must contain at least a title, a description and one step.
+
+Let&#39;s fix that and fill the tutorial.
+
+
+
+
+
+
+
+== Add the title
+The syntax in which the tutorial is written can be found at https://github.com/devonfw-tutorials/tutorials/wiki/Development.
+
+At first we will add a title to the first line of the file.
+
+
+==== Prerequisites
+* Any editor that can edit files
+
+==== Changing of index.asciidoc in any Editor
+
+
+To change the file index.asciidoc, you have to open it in any editor. 
+Open the editor and choose in the file context menu in the top left corner *Open ...* mostly also keyboard shortcut ctrl+o works. 
+Based on your operating system a window with the file explorer opens. You have to navigate to index.asciidoc and select it.  Select the right folder manually by selecting the folders from the path `tutorials/myTutorial` and select the file `index.asciidoc`. 
+You confirm this with the *Open* button in the bottom right corner index.asciidoc will be opened in a new editor window.
+
+Copy the following text.
+[source, asciidoc]
+----
+= Title of my new tutorial
+----
+
+
+Now insert the copied text into the opened index.asciidoc. 
+The final step is to save the file by selecting *Save* in the file context menu or by using the keyboard shortcut ctrl+s and index.asciidoc has been changed.
+
+
+
+== Add the description
+The next step is to add some description lines below the title. The description has to be surrounded by `====`.
+
+
+==== Prerequisites
+* Any editor that can edit files
+
+==== Changing of index.asciidoc in any Editor
+
+
+To change the file index.asciidoc, you have to open it in any editor. 
+Open the editor and choose in the file context menu in the top left corner *Open ...* mostly also keyboard shortcut ctrl+o works. 
+Based on your operating system a window with the file explorer opens. You have to navigate to index.asciidoc and select it.  Select the right folder manually by selecting the folders from the path `tutorials/myTutorial` and select the file `index.asciidoc`. 
+You confirm this with the *Open* button in the bottom right corner index.asciidoc will be opened in a new editor window.
+
+Copy the following text.
+[source, asciidoc]
+----
+= Title of my new tutorial
+====
+In this section you can write the description of the tutorial. This can consist of several lines.
+
+The description should explain the tutorial in a few words and explain what is to be learned.
+====
+
+----
+
+
+To replace the content with a specific placeholder you have to locate the placeholder in the file. The fastest way is to search through the opened file and replace *= Title of my new tutorial* with the new content.
+
+The final step is to save the file by selecting *Save* in the file context menu or by using the keyboard shortcut ctrl+s and index.asciidoc has been changed.
+
+
+
+== Add a step
+Last but not least add a step. 
+
+Each step consists of
+
+* an explanation
+* a function to execute (You can find a list with the currently available functions on https://github.com/devonfw-tutorials/tutorial-compiler/wiki/Functions)
+* and an optional explanation of the results of the step.
+
+In this tutorial we will add a simple step which creates a new file.
+
+
+==== Prerequisites
+* Any editor that can edit files
+
+==== Changing of index.asciidoc in any Editor
+
+
+To change the file index.asciidoc, you have to open it in any editor. 
+Open the editor and choose in the file context menu in the top left corner *Open ...* mostly also keyboard shortcut ctrl+o works. 
+Based on your operating system a window with the file explorer opens. You have to navigate to index.asciidoc and select it.  Select the right folder manually by selecting the folders from the path `tutorials/myTutorial` and select the file `index.asciidoc`. 
+You confirm this with the *Open* button in the bottom right corner index.asciidoc will be opened in a new editor window.
+
+Copy the following text.
+[source, asciidoc]
+----
+= Title of my new tutorial
+====
+In this section you can write the description of the tutorial. This can consist of several lines.
+
+The description should explain the tutorial in a few words and explain what is to be learned.
+====
+
+Before the '[step]' keyword the explanation is written.
+The explanation can consist of multiple lines.
+[step]
+--
+createFile("pathToTheFile/fileName.txt")
+--
+----
+
+
+Now insert the copied text into the opened index.asciidoc. 
+The final step is to save the file by selecting *Save* in the file context menu or by using the keyboard shortcut ctrl+s and index.asciidoc has been changed.
+
+This is the syntax without additional text after the step. There is an alternative syntax to display a text after the step (e.g. for describing the results of a step). This will be shown in the next step.
+
+
+== Alternative syntax
+ 
+
+If you want to add some additional text after the step to explain the results of a step then you have to use the following syntax.
+
+```
+====
+The explanation for the step
+[step]
+--
+functionName(parameters)
+--
+The explanation of the results
+====
+```
+
+Here the whole block has to be surrounded by `====`.
+
+
+
+
+
+
+
+== Push tutorial
+ 
+
+You now have a working tutorial.
+
+Push the changes again to GitHub by executing the following commands:
+
+1. &#39;git add .&#39; 
+2. &#39;git commit -m &#34;added createFile step to the tutorial&#34;&#39;
+3. &#39;git push&#39;
+
+This will automatically start the workflow in the tutorials repository.
+
+After a while you can find your tutorial on https://katacoda.com/devonfw-dev.
+
+After you have completed your tutorial and tested it on the katacoda account, remove the &#39;WIP&#39; from your pull request to show that the tutorial is finished.
+
+
+
+
+
+
+
+== Local testing
+ 
+
+Now you should have a ideo how to create your own tutorials.
+
+There is also a way to test your tutorials on your local machine. For this you have to clone the tutorial-compiler repository.
+
+The directory with the tutorial-compiler has to be located next to the directory with the tutorials repository.
+
+So go back to the root directory and clone the repository.
+
+`cd /root`{{execute T1}}
+
+`git clone https://github.com/devonfw-tutorials/tutorial-compiler.git`{{execute T1}}
+
+The tutorial-compiler needs typescript to be installed to work. So install typescript on your machine.
+
+`npm install typescript -g`{{execute T1}}
+
+Now navigate into the tutorial-compiler directory and install the needed dependencies.
+
+`cd tutorial-compiler`{{execute T1}}
+
+`npm install`{{execute T1}}
+
+
+# Test your tutorial locally
+To run the tutorial-compiler execute the following command:
+
+`bash localBuildRun.sh -e katacoda -p myTutorial`{{execute T1}}
+
+This will execute your newly create tutorial in the &#39;katacoda&#39; environment. If you obmit the &#39;-e&#39; and &#39;-p&#39; paramter, all tutorials are executed in all environments.
+
+The tutorial-compiler now generates the files needed for a katacoda tutorial. You can find the files in the &#39;build/output/katacoda/myTutorial&#39; directory of the tutorial compiler.
+The step you added to your tutorial is shown in the following file:
+
+`tutorial-compiler/build/output/katacoda/myTutorial/step1.md`{{open}}
+
+
+
+
+
+
+

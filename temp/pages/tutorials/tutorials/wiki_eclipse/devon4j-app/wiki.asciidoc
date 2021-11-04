@@ -1,0 +1,217 @@
+= Generate your Java application with devon4j
+
+devon4j is the Java stack of devonfw. It allows you to build business applications (backends) using Java technology in a highly efficient and standardized way based on established best-practices.
+
+# Prerequisites
+
+* User should have Java development experience
+
+# Learning goals
+
+* After completing this scenario, you will have learned how to generate Java application using devon4j.
+
+More information about devon4j on https://devonfw.com/website/pages/docs/devon4j.asciidoc.html
+
+
+
+
+The definition of each step of this tutorial can be found at https://github.com/devonfw-tutorials/tutorials/tree/main/devon4j-app/. 
+
+Feel free to report any errors to us or fix them yourself. Errors can be reported by creating an issue in the https://github.com/devonfw-tutorials/tutorials/issues[tutorials repository]. To fix the error fork the repository and create a pull request. Errors in the wiki can be reported and fixed in the https://github.com/devonfw-tutorials/tutorial-compiler[Tutorial-compiler repository].
+You can find a description of what to look for when creating a pull request at the devonfw contribution guide: https://devonfw.com/website/pages/community/community.html#community.asciidoc_contributing-to-devonfw. If you want to create a tutorial you can start with the https://katacoda.com/devonfw/scenarios/create-your-own-tutorial[katacoda tutorial] and read the description for creating your own tutorials: https://github.com/devonfw-tutorials/tutorials/wiki/Development.
+
+
+
+=== devonfw setup
+
+
+
+If you already installed the devonfw IDE, you can skip this step.
+
+==== Prerequisites
+
+* You need to have a tool to extract `.tar.gz` files. On Windows lower Windows 10 use can use https://www.7-zip.org/7-zip[7-Zip]. The most other platforms support this feature by default.
+* You need to have https://git-scm.com/[Git] and https://curl.se/[Curl] installed. On Windows you have to install https://git-scm.com/download/win[Git for Windows]. On Linux systems you might need to install the following tools in case they are not present (`sudo apt-get install git curl` or `sudo yum install git-core curl`)
+
+Create a new directory in the location where you want to install the devonfw IDE. If you are using the terminal, navigate to this location and run `mkdir devonfw` and `cd devonfw` to create the directory and navigate into it.
+
+==== Download
+
+
+
+Now you have to download the latest release of the devonfw IDE. You can download it from https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.devonfw.tools.ide&a=devonfw-ide-scripts&v=LATEST&p=tar.gz[here].
+
+In the Terminal execute `Invoke-WebRequest -OutFile devonfw-ide-scripts.tar.gz 'https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.devonfw.tools.ide&a=devonfw-ide-scripts&v=LATEST&p=tar.gz'` if you are using Windows.
+
+On Linux use `wget -c 'https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.devonfw.tools.ide&a=devonfw-ide-scripts&v=LATEST&p=tar.gz' -O devonfw-ide-scripts.tar.gz -`.
+
+On MacOS, depending on your setup, you can either use the same `wget` command specified for the Linux installation (install wget via homebrew `brew install wget`) or use any other available download command i.e. `curl -o devonfw-ide-scripts.tar.gz https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.devonfw.tools.ide&a=devonfw-ide-scripts&v=LATEST&p=tar.gz`.
+
+
+
+After that you need to extract the downloaded file. To do this, run `tar -xvzf devonfw-ide-scripts.tar.gz`. Or you can simply use a tool (e.g. 7-Zip) for this.
+
+==== Setup
+
+First, you need to prepare a settings repository to specify the tools to be installed within the devonfw IDE. Normally this is done by your project. If you just want to test the devonfw IDE, you can use the default URL, which is https://github.com/devonfw/ide-settings.
+
+For now clone the repository on https://github.com/devonfw/ide-settings or your own fork of it.
+For this tutorial you have to write `DEVON_IDE_TOOLS=(java mvn vscode)` into the devon.properties file of the cloned settings repository. These settings will now be passed into the installation process of the devonfw-ide.
+Start the setup process by executing `.\setup 'path/to/settings'` (Windows) or `bash setup path/to/settings.git` (Linux).
+
+You can also just execute `.\setup` (Windows) or `bash setup` (Linux) and press Enter when the setup assistent asks for the URL to the settings repository. This will also download the default settings and install the default tools within the devonfw IDE.
+
+
+The installer will also ask you if you want to enter secrets for your maven repository. You can simply skip this by pressing 'Enter'.
+ 
+
+
+
+
+
+=== Create a new devon4j project from command prompt
+### A devon4j Sample Application
+
+Note: Startup script will take some time for set up. After that you can proceed further.
+
+If you want to create devon4j application on your local machine there are two ways to do it:
+
+* In eclipse as shown [here](https://devonfw.com/website/pages/docs/devon4j.asciidoc_tutorials.html#tutorial-newapp.asciidoc_from-eclipse)
+
+* Using command line as shown [here](https://devonfw.com/website/pages/docs/devon4j.asciidoc_tutorials.html#tutorial-newapp.asciidoc_from-command-line)
+
+Now, you will create sample devon4j application with name *sampleapp*. This step will guide you on how to do it.
+
+
+
+==== Prerequisites
+
+In order to create a new application you must use the archetype provided by devon4j which uses the https://maven.apache.org/guides/introduction/introduction-to-archetypes.html[maven archetype functionality].
+
+To create a new application, you should have installed devonfw-ide. Follow the https://devonfw.com/website/pages/docs/devonfw-ide-introduction.asciidoc.html[devonfw-ide] documentation to install the same.
+
+==== Create the project
+
+Now you can use devonfw to setup a java project for you by executing the following devon command in terminal.
+
+`devon java create com.example.application.sampleapp`
+
+There is also is also an alternative way, where you can customize the project setup with optional parameters. More informations you will find https://devonfw.com/website/pages/docs/devon4j.asciidoc_tutorials.html[here].
+
+==== What is generated?
+
+The application template (archetype) generates a Maven multi-module project. It has the following modules:
+
+- *api*: module with the API (REST service interfaces, transfer-objects, datatypes, etc.) to be imported by other apps as a maven dependency in order to invoke and consume the offered (micro)services.
+
+- *core*: maven module containing the core of the application.
+
+- *batch*: optional module for batch(es)
+
+- *server*: module that bundles the entire app (core with optional batch) as a WAR file.
+
+- *ear*: optional maven module is responsible to packaging the application as a EAR file.
+
+The toplevel pom.xml of the generated project has the following features:
+
+- Properties definition: Spring-boot version, Java version, etc.
+
+- Modules definition for the modules (described above)
+
+- Dependency management: define versions for dependencies of the technology stack that are recommended and work together in a compatible way.
+
+- Maven plugins with desired versions and configuration
+
+- Profiles for https://devonfw.com/website/pages/docs/devon4j.asciidoc_guides.html#guide-testing.asciidoc[test stages]
+
+Once sampleapp is created switch to next tab of IDE. In IDE explorer you can see folder structure like devonfw-> workspaces->main->sampleapp . 
+
+Sampleapp contains 3 modules i.e api, core and server.
+
+**api**: It contains API for sampleapp.The API contains the required artifacts to interact with your application via remote services. This can be REST service interfaces, transfer-objects with their interfaces and datatypes but also OpenAPI or gRPC contracts.
+
+**core**: It is the core of the application.In this module you can write actual business logic with service implementation, as well as entire logic layer and dataaccess layer.
+
+**batch**: Optional module for batch layer. In this example we have not created it. To add batch module while generating from commandline use -Dbatch=batch parameter. And to generate it from eclipse using maven archetype, enter batch variable value as batch in project creation page.
+
+**server**: This module bundles the entire app (core with optional batch) typically as a bootified WAR file.
+
+If you want to know more about modules and project structure refer [here](#https://github.com/devonfw/devon4j/blob/master/documentation/guide-structure.asciidoc#project-structure).
+
+
+== devon4j multilayer architecture
+ 
+
+image::images/devon4j_proj_structure1.jpg[]
+
+
+
+
+
+As shown in above image, devon4j application follows [multilayered architecture](https://en.wikipedia.org/wiki/Multitier_architecture).
+
+Each component is divided into following layers:
+
+* [client layer](https://github.com/devonfw/devon4j/blob/master/documentation/guide-client-layer.asciidoc) for the front-end (GUI).
+
+* [service layer](https://github.com/devonfw/devon4j/blob/master/documentation/guide-service-layer.asciidoc) for the services used to expose functionality of the back-end to the client or other consumers. For example, in sampleapp we generated com.example.application.sampleapp.<componentname>.service.impl will have all rest service implementation.
+
+* [batch layer](https://github.com/devonfw/devon4j/blob/master/documentation/guide-batch-layer.asciidoc) for exposing functionality in batch-processes (e.g. mass imports).
+
+* [logic layer](https://github.com/devonfw/devon4j/blob/master/documentation/guide-logic-layer.asciidoc) for the business logic. For example, in sampleapp we generated com.example.application.sampleapp.<componentname>.logic will contain business logic or usecase implementation.
+
+* [data-access layer](https://github.com/devonfw/devon4j/blob/master/documentation/guide-dataaccess-layer.asciidoc) for the data access (esp. persistence).For example, in sampleapp we generated com.example.application.sampleapp.<componentname>.dataaccess will contain entity, repositories etc.
+
+
+
+
+=== Build the Java Project with Maven
+Now you have to build a devon4j sample application i.e. sampleapp.
+
+
+
+==== Prerequisites
+
+* You need to have Maven installed. If not already installed, you can download it https://maven.apache.org/download.cgi[here]. Alternativly, you can make use of the devonfw-ide, where you can install Maven directly to your workspace. For more details on how to do that, see the https://devonfw.com/website/pages/docs/devonfw-ide-introduction.asciidoc.html#setup.asciidoc[devonfw-ide setup].
+
+==== Execution
+
+Now move to your project directory manually or by executing `cd C:\devonfw\workspaces\main\tutorial-compiler\build\working\devonfw\workspaces\main\sampleapp` in the terminal.
+Next, use the following command to build the java project.
+
+`mvn clean install -Dmaven.test.skip=true`
+
+The maven command 'clean' will clear the target directory beforehand. So your build will start from a clean state.
+Install will then compile, test and package your Java project and copy your built .jar/.war file into your local Maven repository.
+
+We do not need to execute the test cases, so we can skip them by using the option '-Dmaven.test.skip=true'.
+
+
+Once build is successful you will get bootified-war generated in server module target folder. In sampleapp check for path sampleapp/server/sampleapp-server-bootified.war
+
+
+
+== Conclusion
+
+
+
+## Conclusion
+
+In this tutorial you have learnt how to create devon4j application using command line or via Eclipse. Next you can check for other tutorials such as:
+ 
+ 
+* devon4j- contract first code generation
+ 
+ 
+* devon4j-Kafka
+ 
+ 
+* devon4j-security
+ 
+ 
+* devon4j with Spring JPA
+ 
+ 
+* devon4j rest services
+ 
+ 

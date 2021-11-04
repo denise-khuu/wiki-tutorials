@@ -1,0 +1,211 @@
+= devon4j architecture in practice
+
+
+## Prerequisites
+
+Java programming knowledge
+
+
+## Learning goals
+
+This tutorial aims to explain concepts and principles of devon4j architecture with help of an sample application named JumpTheQueue. Below are the steps we will go through to understand it clearly.
+
+
+* Clone JumpTheQueue repository
+
+* Understand devon4j application structure 
+
+* Understand Key and architectural principles followed by devon4j
+
+* Understand devon4j application architecture
+
+By end of this tutorial you will have detailed understanding of principles followed by devon4j application as well as its structure and architecture. 
+
+
+
+
+The definition of each step of this tutorial can be found at https://github.com/devonfw-tutorials/tutorials/tree/main/devon4j-architecture/. 
+
+Feel free to report any errors to us or fix them yourself. Errors can be reported by creating an issue in the https://github.com/devonfw-tutorials/tutorials/issues[tutorials repository]. To fix the error fork the repository and create a pull request. Errors in the wiki can be reported and fixed in the https://github.com/devonfw-tutorials/tutorial-compiler[Tutorial-compiler repository].
+You can find a description of what to look for when creating a pull request at the devonfw contribution guide: https://devonfw.com/website/pages/community/community.html#community.asciidoc_contributing-to-devonfw. If you want to create a tutorial you can start with the https://katacoda.com/devonfw/scenarios/create-your-own-tutorial[katacoda tutorial] and read the description for creating your own tutorials: https://github.com/devonfw-tutorials/tutorials/wiki/Development.
+
+
+
+=== devonfw setup
+
+### setup environment
+We will start by setting up development environment.
+
+
+
+If you already installed the devonfw IDE, you can skip this step.
+
+==== Prerequisites
+
+* You need to have a tool to extract `.tar.gz` files. On Windows lower Windows 10 use can use https://www.7-zip.org/7-zip[7-Zip]. The most other platforms support this feature by default.
+* You need to have https://git-scm.com/[Git] and https://curl.se/[Curl] installed. On Windows you have to install https://git-scm.com/download/win[Git for Windows]. On Linux systems you might need to install the following tools in case they are not present (`sudo apt-get install git curl` or `sudo yum install git-core curl`)
+
+Create a new directory in the location where you want to install the devonfw IDE. If you are using the terminal, navigate to this location and run `mkdir devonfw` and `cd devonfw` to create the directory and navigate into it.
+
+==== Download
+
+
+
+Now you have to download the latest release of the devonfw IDE. You can download it from https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.devonfw.tools.ide&a=devonfw-ide-scripts&v=LATEST&p=tar.gz[here].
+
+In the Terminal execute `Invoke-WebRequest -OutFile devonfw-ide-scripts.tar.gz 'https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.devonfw.tools.ide&a=devonfw-ide-scripts&v=LATEST&p=tar.gz'` if you are using Windows.
+
+On Linux use `wget -c 'https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.devonfw.tools.ide&a=devonfw-ide-scripts&v=LATEST&p=tar.gz' -O devonfw-ide-scripts.tar.gz -`.
+
+On MacOS, depending on your setup, you can either use the same `wget` command specified for the Linux installation (install wget via homebrew `brew install wget`) or use any other available download command i.e. `curl -o devonfw-ide-scripts.tar.gz https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.devonfw.tools.ide&a=devonfw-ide-scripts&v=LATEST&p=tar.gz`.
+
+
+
+After that you need to extract the downloaded file. To do this, run `tar -xvzf devonfw-ide-scripts.tar.gz`. Or you can simply use a tool (e.g. 7-Zip) for this.
+
+==== Setup
+
+First, you need to prepare a settings repository to specify the tools to be installed within the devonfw IDE. Normally this is done by your project. If you just want to test the devonfw IDE, you can use the default URL, which is https://github.com/devonfw/ide-settings.
+
+For now clone the repository on https://github.com/devonfw/ide-settings or your own fork of it.
+For this tutorial you have to write `DEVON_IDE_TOOLS=(java vscode)` into the devon.properties file of the cloned settings repository. These settings will now be passed into the installation process of the devonfw-ide.
+Start the setup process by executing `.\setup 'path/to/settings'` (Windows) or `bash setup path/to/settings.git` (Linux).
+
+You can also just execute `.\setup` (Windows) or `bash setup` (Linux) and press Enter when the setup assistent asks for the URL to the settings repository. This will also download the default settings and install the default tools within the devonfw IDE.
+
+ 
+
+
+
+
+
+=== Clone Repository
+### Clone jump the queue repository
+
+First, clone the Jump-The-Queue Repository.Jump the queue is a sample devonfw application.
+
+
+==== Prerequisites
+* You need to have Git installed. You can download Git https://git-scm.com/downloads[here] for your OS and install it by following the instructions.
+
+==== Download
+Open a terminal in your current workspace.
+
+Firstly, you have to move to the directory where the repository should be cloned to.
+If the directory does not exist yet, you can create it by using the `mkdir` command in the terminal.
+In this case execute `mkdir -p C:\devonfw\workspaces\main\tutorial-compiler\build\working\devonfw\workspaces\main`.
+
+After that, move to the target directory by executing `cd  C:\devonfw\workspaces\main\tutorial-compiler\build\working\devonfw\workspaces\main` in the terminal.
+
+To clone a Git repository execute `git clone https://github.com/devonfw/jump-the-queue.git` in the terminal.
+
+Once project is cloned switch to next tab of IDE. In IDE explorer you will be able to see folder structure like devonfw-> workspaces->main->jump-the-queue-> java->jtqj 
+
+
+== devon4j application architecture
+### devon4j application structure
+ 
+
+image::images/jtqj_app_structure.jpg[]
+
+
+
+
+
+As shown above, jump-the-queue contains 3 modules i.e api, core and server.
+
+**api**: It contains API for sampleapp.The API contains the required artifacts to interact with your application via remote services. This can be REST service interfaces, transfer-objects with their interfaces and datatypes but also OpenAPI or gRPC contracts.
+
+**core**: It is the core of the application.In this module you can write actual business logic with service implementation, as well as entire logic layer and dataaccess layer.
+
+**batch**: optional module for batch layer. In this example we have not created it.
+
+**server**: This module bundles the entire app (core with optional batch) typically as a bootified WAR file.
+
+If you want to know more about modules and project structure refer [here](https://github.com/devonfw/devon4j/blob/master/documentation/guide-structure.asciidoc#project-structure).
+
+devon4j application follows [multilayered architecture](https://en.wikipedia.org/wiki/Multitier_architecture). We will understand more about it in next step.
+
+
+
+== devon4j application layers
+### devon4j layers explained
+
+ 
+
+image::images/jtqj_detailed_app_structure.jpg[]
+
+
+
+
+
+Above image display detailed structure of devon4j application. As shown above jump-the-queue application contains different components like queuemanagement, visitormanagement etc
+
+Each component is divided into following layers:
+* [client layer](https://github.com/devonfw/devon4j/blob/master/documentation/guide-client-layer.asciidoc) for the front-end (GUI).
+
+* [service layer](https://github.com/devonfw/devon4j/blob/master/documentation/guide-service-layer.asciidoc) for the services used to expose functionality of the back-end to the client or other consumers. 
+For example, in jtqj-api->queuemangement->service->api-> rest contains interfaces for rest services. In core module jtqj-core->queuemanagement->service->impl-> rest you will be able to see implementation of service.
+
+* [batch layer](https://github.com/devonfw/devon4j/blob/master/documentation/guide-batch-layer.asciidoc) for exposing functionality in batch-processes (e.g. mass imports).
+
+* [logic layer](https://github.com/devonfw/devon4j/blob/master/documentation/guide-logic-layer.asciidoc) for the business logic.
+For example, in jtqj-api->queuemangement->logic->api contains ETO(Entity Transfer Object) , CTO(Composite Transfer object), some logic interfaces. In core module jtqj-core->queuemanagement->logic->impl you will be able to see usecase implementation.
+
+* [data-access layer](https://github.com/devonfw/devon4j/blob/master/documentation/guide-dataaccess-layer.asciidoc) for the data access (esp. persistence).
+For example, in jtqj-api->queuemangement->dataaccess->core contains entities, spring data repositories etc
+
+
+
+== Understand devon4j application architecture
+ 
+
+### Key Principles:
+devon4j application follows some fundamental principles  for all decisions about architecture, design, or choosing standards, libraries, and frameworks. 
+It follows key principles such as KISS, open,patterns, solid. More detils can be found [here](https://github.com/devonfw/devon4j/blob/master/documentation/architecture.asciidoc#key-principles).
+
+### Architecture Principles:
+Additionally devon4j architecture is based on [architecture principles](https://github.com/devonfw/devon4j/blob/master/documentation/architecture.asciidoc#architecture-principles) such as Component Oriented Design, Homogeneity.
+
+### Application Architecture:
+
+For the architecture of an application we distinguish the following views:
+
+* The **Business Architecture** describes an application from the business perspective. It divides the application into business components and with full abstraction of technical aspects.
+
+* The **Technical Architecture** describes an application from the technical implementation perspective. It divides the application into technical layers and defines which technical products and frameworks are used to support these layers.
+
+* The **Infrastructure Architecture** describes an application from the operational infrastructure perspective. It defines the nodes used to run the application including clustering, load-balancing and networking. This view is not explored further in this guide.
+
+Detailed description about devon4j business and technical architecture can be found [here](https://github.com/devonfw/devon4j/blob/master/documentation/architecture.asciidoc#application-architecture)
+
+
+
+
+
+
+
+
+== Conclusion
+
+
+
+#
+## Conclusion
+
+To summarize, in this tutorial we learned about devon4j architecture and key principle it follows. with help of example we also learned about devon4j different modules such as api, core ,server and its multilayered architecture.
+
+Next you can visit following tutorials to know more about devon4j:
+ 
+* Java backend code generation using CobiGen (Code Generator)
+ 
+* devon4j- contract first code generation
+ 
+* devon4j-Kafka
+ 
+* devon4j-security
+ 
+* devon4j with Spring JPA
+ 
+* devon4j rest services
+ 

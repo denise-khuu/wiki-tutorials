@@ -1,0 +1,175 @@
+= Jump start an end-to-end devonfw sample application.
+
+Jump The Queue is a small application based on the devonfw framework, which you can create yourself by following our simple step-by-step tutorial. By doing so, you will learn about the app development workflow and gain insight into the design of a professional business information system.
+
+
+#
+## Prerequisites
+
+* User should have Java, Angular development experience
+
+
+#
+## Learning goals
+
+* After completing this tutorial, you will have learned about a devonfw sample application Jump-The-Queue and its architecture. 
+
+More information about Jump The Queue on https://github.com/devonfw/jump-the-queue
+
+
+
+The definition of each step of this tutorial can be found at https://github.com/devonfw-tutorials/tutorials/tree/main/JumpTheQueue/. 
+
+Feel free to report any errors to us or fix them yourself. Errors can be reported by creating an issue in the https://github.com/devonfw-tutorials/tutorials/issues[tutorials repository]. To fix the error fork the repository and create a pull request. Errors in the wiki can be reported and fixed in the https://github.com/devonfw-tutorials/tutorial-compiler[Tutorial-compiler repository].
+You can find a description of what to look for when creating a pull request at the devonfw contribution guide: https://devonfw.com/website/pages/community/community.html#community.asciidoc_contributing-to-devonfw. If you want to create a tutorial you can start with the https://katacoda.com/devonfw/scenarios/create-your-own-tutorial[katacoda tutorial] and read the description for creating your own tutorials: https://github.com/devonfw-tutorials/tutorials/wiki/Development.
+
+
+
+=== devonfw setup
+
+
+
+If you already installed the devonfw IDE, you can skip this step.
+
+==== Prerequisites
+
+* You need to have a tool to extract `.tar.gz` files. On Windows lower Windows 10 use can use https://www.7-zip.org/7-zip[7-Zip]. The most other platforms support this feature by default.
+* You need to have https://git-scm.com/[Git] and https://curl.se/[Curl] installed. On Windows you have to install https://git-scm.com/download/win[Git for Windows]. On Linux systems you might need to install the following tools in case they are not present (`sudo apt-get install git curl` or `sudo yum install git-core curl`)
+
+Create a new directory in the location where you want to install the devonfw IDE. If you are using the terminal, navigate to this location and run `mkdir devonfw` and `cd devonfw` to create the directory and navigate into it.
+
+==== Download
+
+
+
+Now you have to download the latest release of the devonfw IDE. You can download it from https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.devonfw.tools.ide&a=devonfw-ide-scripts&v=LATEST&p=tar.gz[here].
+
+In the Terminal execute `Invoke-WebRequest -OutFile devonfw-ide-scripts.tar.gz 'https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.devonfw.tools.ide&a=devonfw-ide-scripts&v=LATEST&p=tar.gz'` if you are using Windows.
+
+On Linux use `wget -c 'https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.devonfw.tools.ide&a=devonfw-ide-scripts&v=LATEST&p=tar.gz' -O devonfw-ide-scripts.tar.gz -`.
+
+On MacOS, depending on your setup, you can either use the same `wget` command specified for the Linux installation (install wget via homebrew `brew install wget`) or use any other available download command i.e. `curl -o devonfw-ide-scripts.tar.gz https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.devonfw.tools.ide&a=devonfw-ide-scripts&v=LATEST&p=tar.gz`.
+
+
+
+After that you need to extract the downloaded file. To do this, run `tar -xvzf devonfw-ide-scripts.tar.gz`. Or you can simply use a tool (e.g. 7-Zip) for this.
+
+==== Setup
+
+First, you need to prepare a settings repository to specify the tools to be installed within the devonfw IDE. Normally this is done by your project. If you just want to test the devonfw IDE, you can use the default URL, which is https://github.com/devonfw/ide-settings.
+
+For now clone the repository on https://github.com/devonfw/ide-settings or your own fork of it.
+For this tutorial you have to write `DEVON_IDE_TOOLS=(java mvn node ng npm)` into the devon.properties file of the cloned settings repository. These settings will now be passed into the installation process of the devonfw-ide.
+Start the setup process by executing `.\setup 'path/to/settings'` (Windows) or `bash setup path/to/settings.git` (Linux).
+
+You can also just execute `.\setup` (Windows) or `bash setup` (Linux) and press Enter when the setup assistent asks for the URL to the settings repository. This will also download the default settings and install the default tools within the devonfw IDE.
+
+
+The installer will also ask you if you want to enter secrets for your maven repository. You can simply skip this by pressing 'Enter'.
+ 
+
+
+
+
+
+=== Clone Repository
+First, clone the Jump-The-Queue Repository.
+
+
+==== Prerequisites
+* You need to have Git installed. You can download Git https://git-scm.com/downloads[here] for your OS and install it by following the instructions.
+
+==== Download
+Open a terminal in your current workspace.
+
+Firstly, you have to move to the directory where the repository should be cloned to.
+If the directory does not exist yet, you can create it by using the `mkdir` command in the terminal.
+In this case execute `mkdir -p C:\devonfw\workspaces\main\tutorial-compiler\build\working\devonfw\workspaces\main`.
+
+After that, move to the target directory by executing `cd  C:\devonfw\workspaces\main\tutorial-compiler\build\working\devonfw\workspaces\main` in the terminal.
+
+To clone a Git repository execute `git clone https://github.com/devonfw/jump-the-queue.git` in the terminal.
+
+
+
+== Build and Run Java Server
+
+
+==== Prerequisites
+
+* You need to have Maven installed. If not already installed, you can download it https://maven.apache.org/download.cgi[here]. Alternativly, you can make use of the devonfw-ide, where you can install Maven directly to your workspace. For more details on how to do that, see the https://devonfw.com/website/pages/docs/devonfw-ide-introduction.asciidoc.html#setup.asciidoc[devonfw-ide setup].
+
+==== Execution
+
+Now move to your project directory manually or by executing `cd C:\devonfw\workspaces\main\tutorial-compiler\build\working\devonfw\workspaces\main\jump-the-queue\java\jtqj` in the terminal.
+Next, use the following command to build the java project.
+
+`mvn clean install`
+
+The maven command 'clean' will clear the target directory beforehand. So your build will start from a clean state.
+Install will then compile, test and package your Java project and copy your built .jar/.war file into your local Maven repository.
+
+
+
+
+
+
+=== Run Java Server
+
+
+
+=== Prerequisites
+* Maven (can be included in your devonfw environment)
+
+=== Starting the server
+
+First, change the current working directory to where your server is located, i.e. `cd C:\devonfw\workspaces\main\tutorial-compiler\build\working\devonfw\workspaces\main\jump-the-queue\java\jtqj\server`.
+
+Afterwards, use maven to start the server: `mvn spring-boot:run`.
+This command will start the Java server.
+
+
+
+=== Startup Assertion
+
+You can check if the server is running correctly by checking if `localhost:8081/jumpthequeue` is accessible by either using a tool like `curl`, `Postman` or simply accessing the service via your webbrowser.
+
+Example: `curl -Is localhost:8081/ | head -n 1`
+
+This command should return an `200 OK` header if the service is available.
+
+
+
+Now the Java Server should be running.
+
+
+== Serve the Frontend Server
+Now build and run the Angular Server.
+The following two steps are only needed in this tutorial. Normally you can simply execute "ng serve", open the https://localhost:4200/ and start using the app.
+In the next step you need to change the Base URL for the REST Services. 
+
+
+==== Prerequisites
+* Any editor that can edit files
+
+==== Changing of environment.ts in any Editor
+
+
+To change the file environment.ts, you have to open it in any editor. 
+Open the editor and choose in the file context menu in the top left corner *Open ...* mostly also keyboard shortcut ctrl+o works. 
+Based on your operating system a window with the file explorer opens. You have to navigate to environment.ts and select it.  Select the right folder manually by selecting the folders from the path `devonfw/workspaces/main/jump-the-queue/angular/src/environments` and select the file `environment.ts`. 
+You confirm this with the *Open* button in the bottom right corner environment.ts will be opened in a new editor window.
+
+Copy the following text.
+[source, typescript]
+----
+https://[[HOST_SUBDOMAIN]]-8081-[[KATACODA_HOST]].environments.katacoda.com/jumpthequeue/services/rest
+----
+
+
+To replace the content with a specific placeholder you have to locate the placeholder in the file. The fastest way is to search through the opened file and replace *http://localhost:8081/jumpthequeue/services/rest* with the new content.
+
+The final step is to save the file by selecting *Save* in the file context menu or by using the keyboard shortcut ctrl+s and environment.ts has been changed.
+
+
+

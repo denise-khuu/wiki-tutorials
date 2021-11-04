@@ -1,0 +1,1020 @@
+= Develop a devon4j CXF REST Client using Synchronous call
+
+REST (REpresentational State Transfer) is an inter-operable protocol for services that is more lightweight than SOAP. We give best practices that lead to simple, easy and pragmatic &#34;HTTP APIs&#34;.
+
+
+## Prerequisites
+
+* User should have development experience in JAVA.
+
+* Basic knowledge of REST.
+
+
+## Learning Goal
+Here in this tutorial you will learn the following things:
+
+* JAX-RS standard for REST service implementation proposed by devonfw.
+
+* How to create REST client with devon4j using Synchronous call.
+
+Let&#39;s get started!!
+
+
+
+The definition of each step of this tutorial can be found at https://github.com/devonfw-tutorials/tutorials/tree/main/devon4j-http-rest-client/. 
+
+Feel free to report any errors to us or fix them yourself. Errors can be reported by creating an issue in the https://github.com/devonfw-tutorials/tutorials/issues[tutorials repository]. To fix the error fork the repository and create a pull request. Errors in the wiki can be reported and fixed in the https://github.com/devonfw-tutorials/tutorial-compiler[Tutorial-compiler repository].
+You can find a description of what to look for when creating a pull request at the devonfw contribution guide: https://devonfw.com/website/pages/community/community.html#community.asciidoc_contributing-to-devonfw. If you want to create a tutorial you can start with the https://katacoda.com/devonfw/scenarios/create-your-own-tutorial[katacoda tutorial] and read the description for creating your own tutorials: https://github.com/devonfw-tutorials/tutorials/wiki/Development.
+
+
+
+=== devonfw setup
+
+
+
+If you already installed the devonfw IDE, you can skip this step.
+
+==== Prerequisites
+
+* You need to have a tool to extract `.tar.gz` files. On Windows lower Windows 10 use can use https://www.7-zip.org/7-zip[7-Zip]. The most other platforms support this feature by default.
+* You need to have https://git-scm.com/[Git] and https://curl.se/[Curl] installed. On Windows you have to install https://git-scm.com/download/win[Git for Windows]. On Linux systems you might need to install the following tools in case they are not present (`sudo apt-get install git curl` or `sudo yum install git-core curl`)
+
+Create a new directory in the location where you want to install the devonfw IDE. If you are using the terminal, navigate to this location and run `mkdir devonfw` and `cd devonfw` to create the directory and navigate into it.
+
+==== Download
+
+
+
+Now you have to download the latest release of the devonfw IDE. You can download it from https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.devonfw.tools.ide&a=devonfw-ide-scripts&v=LATEST&p=tar.gz[here].
+
+In the Terminal execute `Invoke-WebRequest -OutFile devonfw-ide-scripts.tar.gz 'https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.devonfw.tools.ide&a=devonfw-ide-scripts&v=LATEST&p=tar.gz'` if you are using Windows.
+
+On Linux use `wget -c 'https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.devonfw.tools.ide&a=devonfw-ide-scripts&v=LATEST&p=tar.gz' -O devonfw-ide-scripts.tar.gz -`.
+
+On MacOS, depending on your setup, you can either use the same `wget` command specified for the Linux installation (install wget via homebrew `brew install wget`) or use any other available download command i.e. `curl -o devonfw-ide-scripts.tar.gz https://repository.sonatype.org/service/local/artifact/maven/redirect?r=central-proxy&g=com.devonfw.tools.ide&a=devonfw-ide-scripts&v=LATEST&p=tar.gz`.
+
+
+
+After that you need to extract the downloaded file. To do this, run `tar -xvzf devonfw-ide-scripts.tar.gz`. Or you can simply use a tool (e.g. 7-Zip) for this.
+
+==== Setup
+
+First, you need to prepare a settings repository to specify the tools to be installed within the devonfw IDE. Normally this is done by your project. If you just want to test the devonfw IDE, you can use the default URL, which is https://github.com/devonfw/ide-settings.
+
+For now clone the repository on https://github.com/devonfw/ide-settings or your own fork of it.
+For this tutorial you have to write `DEVON_IDE_TOOLS=(java vscode)` into the devon.properties file of the cloned settings repository. These settings will now be passed into the installation process of the devonfw-ide.
+Start the setup process by executing `.\setup 'path/to/settings'` (Windows) or `bash setup path/to/settings.git` (Linux).
+
+You can also just execute `.\setup` (Windows) or `bash setup` (Linux) and press Enter when the setup assistent asks for the URL to the settings repository. This will also download the default settings and install the default tools within the devonfw IDE.
+
+ 
+
+
+
+== REST
+REST (REpresentational State Transfer) is an inter-operable protocol for services that is more lightweight than SOAP.
+
+For implementing REST services we use the JAX-RS standard. As an implementation we recommend CXF. For JSON bindings we use Jackson while XML binding works out-of-the-box with JAXB. To implement a service you write an interface with JAX-RS annotations for the API and a regular implementation class annotated with @Named to make it a spring-bean.
+
+The REST service implementation is a regular CDI bean that can use dependency injection. The separation of the API as a Java interface allows to use it for service client calls.
+
+**Why** **Should** **you** **prefer** **devon4j** **client** **over** **other** **clients?**
+
+devon4j supports flexible configuration, adding headers for authentication, mapping of errors from server, logging success/errors with duration for performance analysis, support for synchronous and asynchronous invocations. Easy invocation of service inside a micro-service.
+For more details on REST visit https://devonfw.com/website/pages/docs/devon4j.asciidoc_guides.html#guide-rest.asciidoc
+
+For more details on devon4j Service Client https://devonfw.com/website/pages/docs/devon4j.asciidoc_guides.html#guide-service-client.asciidoc
+
+## Create the devon4j REST SERVER
+As explained in REST document, With JAX-RS it is important to make sure that each service method is annotated with the proper HTTP annotation(@GET, @POST, etc).
+Let's create devon4j server.
+
+==== Prerequisites
+
+In order to create a new application you must use the archetype provided by devon4j which uses the https://maven.apache.org/guides/introduction/introduction-to-archetypes.html[maven archetype functionality].
+
+To create a new application, you should have installed devonfw-ide. Follow the https://devonfw.com/website/pages/docs/devonfw-ide-introduction.asciidoc.html[devonfw-ide] documentation to install the same.
+
+==== Create the project
+
+Now you can use devonfw to setup a java project for you by executing the following devon command in terminal.
+
+`devon java create com.example.application.httprestserver`
+
+There is also is also an alternative way, where you can customize the project setup with optional parameters. More informations you will find https://devonfw.com/website/pages/docs/devon4j.asciidoc_tutorials.html[here].
+
+==== What is generated?
+
+The application template (archetype) generates a Maven multi-module project. It has the following modules:
+
+- *api*: module with the API (REST service interfaces, transfer-objects, datatypes, etc.) to be imported by other apps as a maven dependency in order to invoke and consume the offered (micro)services.
+
+- *core*: maven module containing the core of the application.
+
+- *batch*: optional module for batch(es)
+
+- *server*: module that bundles the entire app (core with optional batch) as a WAR file.
+
+- *ear*: optional maven module is responsible to packaging the application as a EAR file.
+
+The toplevel pom.xml of the generated project has the following features:
+
+- Properties definition: Spring-boot version, Java version, etc.
+
+- Modules definition for the modules (described above)
+
+- Dependency management: define versions for dependencies of the technology stack that are recommended and work together in a compatible way.
+
+- Maven plugins with desired versions and configuration
+
+- Profiles for https://devonfw.com/website/pages/docs/devon4j.asciidoc_guides.html#guide-testing.asciidoc[test stages]
+
+In next step, you will add configuration to allow basic authentication.
+
+
+== Add configuration to allow basic authentication
+Now, You have to modify BaseWebSecurityConfig file to allow application for basic authentication.
+
+
+==== Prerequisites
+* Any editor that can edit files
+
+==== Changing of BaseWebSecurityConfig.java in any Editor
+
+
+To change the file BaseWebSecurityConfig.java, you have to open it in any editor. 
+Open the editor and choose in the file context menu in the top left corner *Open ...* mostly also keyboard shortcut ctrl+o works. 
+Based on your operating system a window with the file explorer opens. You have to navigate to BaseWebSecurityConfig.java and select it.  Select the right folder manually by selecting the folders from the path `devonfw/workspaces/main/httprestserver/core/src/main/java/com/example/application/httprestserver/general/service/impl/config` and select the file `BaseWebSecurityConfig.java`. 
+You confirm this with the *Open* button in the bottom right corner BaseWebSecurityConfig.java will be opened in a new editor window.
+
+Copy the following text.
+[source, java]
+----
+package com.example.application.httprestserver.general.service.impl.config;
+
+import javax.inject.Inject;
+import javax.servlet.Filter;
+
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler;
+import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+
+import com.devonfw.module.security.common.api.config.WebSecurityConfigurer;
+import com.devonfw.module.security.common.impl.rest.AuthenticationSuccessHandlerSendingOkHttpStatusCode;
+import com.devonfw.module.security.common.impl.rest.JsonUsernamePasswordAuthenticationFilter;
+import com.devonfw.module.security.common.impl.rest.LogoutSuccessHandlerReturningOkHttpStatusCode;
+
+/**
+ * This type serves as a base class for extensions of the {@code WebSecurityConfigurerAdapter} and provides a default
+ * configuration. <br/>
+ * Security configuration is based on {@link WebSecurityConfigurerAdapter}. This configuration is by purpose designed
+ * most simple for two channels of authentication: simple login form and rest-url.
+ */
+public abstract class BaseWebSecurityConfig extends WebSecurityConfigurerAdapter {
+
+  @Inject
+  private UserDetailsService userDetailsService;
+
+  @Inject
+  private PasswordEncoder passwordEncoder;
+
+  @Inject
+  private WebSecurityConfigurer webSecurityConfigurer;
+
+
+
+  /**
+   * Configure spring security to enable a simple webform-login + a simple rest login.
+   */
+  @Override
+  public void configure(HttpSecurity http) throws Exception {
+
+    String[] unsecuredResources = new String[] { "/login", "/security/**", "/services/rest/login",
+    "/services/rest/logout" };
+
+    // disable CSRF protection by default, use csrf starter to override.
+    http = http.httpBasic().and().csrf().disable();
+    // load starters as pluggins.
+    http = this.webSecurityConfigurer.configure(http);
+
+    http
+        //
+        .userDetailsService(this.userDetailsService)
+        // define all urls that are not to be secured
+        .authorizeRequests().antMatchers(unsecuredResources).permitAll().anyRequest().authenticated().and()
+        // configure parameters for simple form login (and logout)
+        .formLogin().successHandler(new SimpleUrlAuthenticationSuccessHandler()).defaultSuccessUrl("/")
+        .failureUrl("/login.html?error").loginProcessingUrl("/j_spring_security_login").usernameParameter("username")
+        .passwordParameter("password").and()
+        // logout via POST is possible
+        .logout().logoutSuccessUrl("/login.html").and()
+        // register login and logout filter that handles rest logins
+        .addFilterAfter(getSimpleRestAuthenticationFilter(), BasicAuthenticationFilter.class)
+        .addFilterAfter(getSimpleRestLogoutFilter(), LogoutFilter.class);
+  }
+
+  /**
+   * Create a simple filter that allows logout on a REST Url /services/rest/logout and returns a simple HTTP status 200
+   * ok.
+   *
+   * @return the filter.
+   */
+  protected Filter getSimpleRestLogoutFilter() {
+
+    LogoutFilter logoutFilter = new LogoutFilter(new LogoutSuccessHandlerReturningOkHttpStatusCode(),
+        new SecurityContextLogoutHandler());
+
+    // configure logout for rest logouts
+    logoutFilter.setLogoutRequestMatcher(new AntPathRequestMatcher("/services/rest/logout"));
+
+    return logoutFilter;
+  }
+
+  /**
+   * Create a simple authentication filter for REST logins that reads user-credentials from a json-parameter and returns
+   * status 200 instead of redirect after login.
+   *
+   * @return the {@link JsonUsernamePasswordAuthenticationFilter}.
+   * @throws Exception if something goes wrong.
+   */
+  protected JsonUsernamePasswordAuthenticationFilter getSimpleRestAuthenticationFilter() throws Exception {
+
+    JsonUsernamePasswordAuthenticationFilter jsonFilter = new JsonUsernamePasswordAuthenticationFilter(
+        new AntPathRequestMatcher("/services/rest/login"));
+    jsonFilter.setPasswordParameter("j_password");
+    jsonFilter.setUsernameParameter("j_username");
+    jsonFilter.setAuthenticationManager(authenticationManager());
+    // set failurehandler that uses no redirect in case of login failure; just HTTP-status: 401
+    jsonFilter.setAuthenticationManager(authenticationManagerBean());
+    jsonFilter.setAuthenticationFailureHandler(new SimpleUrlAuthenticationFailureHandler());
+    // set successhandler that uses no redirect in case of login success; just HTTP-status: 200
+    jsonFilter.setAuthenticationSuccessHandler(new AuthenticationSuccessHandlerSendingOkHttpStatusCode());
+    return jsonFilter;
+  }
+
+  @SuppressWarnings("javadoc")
+  @Inject
+  public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+    auth.inMemoryAuthentication().withUser("admin").password(this.passwordEncoder.encode("admin")).authorities("Admin");
+  }
+
+}
+
+----
+
+
+Now insert the copied text into the opened BaseWebSecurityConfig.java. 
+The final step is to save the file by selecting *Save* in the file context menu or by using the keyboard shortcut ctrl+s and BaseWebSecurityConfig.java has been changed.
+
+
+
+== Create service for REST server
+Now, you will create VisitormanagementRestService to provide functionality using JAX-RS standard.
+
+
+==== Prerequisites
+* Existing folder you want to create the file. (If the folder doesn't exist you can create it from with the editor).
+* Any Editor that can edit files
+
+==== Creating VisitormanagementRestService.java in any Editor
+
+Create VisitormanagementRestService.java in any Editor and insert the following data into it. .
+
+Opening a new file can be done by going to the file context menu in the top left corner of the editor and select *New* or *New File* or mostly also the keyboard shortcut ctrl+n will also work.
+The editor opens a new editor window for an untitled file that can be edited now.
+ 
+Copy the following text.
+[source, java]
+----
+package com.example.application.httprestserver.visitormanagement.service.api.rest;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+@Path("/visitormanagement/v1")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+public interface VisitormanagementRestService {
+
+  @GET
+  @Path("/clientrequest/")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public String returnResponseToClient();
+
+}
+---- 
+Now insert the copied text into the new file.
+
+The next step is to save the file by selecting *Save* or *Save as* in the file context menu or by using the keyboard shortcut ctrl+s.
+A file explorer window opens.
+You should check if you are currently in the right directory where you want to save *devonfw/workspaces/main/httprestserver/api/src/main/java/com/example/application/httprestserver/visitormanagement/service/api/rest/VisitormanagementRestService.java*. 
+Select the directory `devonfw/workspaces/main/httprestserver/api/src/main/java/com/example/application/httprestserver/visitormanagement/service/api/rest`. If the directory does not exist, create the missing folders or run through the previous steps from the wiki again.
+To save the file specify the name of the file. Paste `VisitormanagementRestService.java` in the text field *File name:*. 
+The last step is to save the file with the *Save* button in the bottom right corner and VisitormanagementRestService.java has been created and filled with some data.
+
+
+== Create implementation class for Service
+Now, you will create VisitormanagementRestServiceImpl, the implementation class of VisitormanagementRestService using JAX-RS standard.
+
+
+==== Prerequisites
+* Existing folder you want to create the file. (If the folder doesn't exist you can create it from with the editor).
+* Any Editor that can edit files
+
+==== Creating VisitormanagementRestServiceImpl.java in any Editor
+
+Create VisitormanagementRestServiceImpl.java in any Editor and insert the following data into it. .
+
+Opening a new file can be done by going to the file context menu in the top left corner of the editor and select *New* or *New File* or mostly also the keyboard shortcut ctrl+n will also work.
+The editor opens a new editor window for an untitled file that can be edited now.
+ 
+Copy the following text.
+[source, java]
+----
+package com.example.application.httprestserver.visitormanagement.service.impl.rest;
+
+import javax.inject.Named;
+
+import com.example.application.httprestserver.visitormanagement.service.api.rest.VisitormanagementRestService;
+
+@Named("VisitormanagementRestService")
+public class VisitormanagementRestServiceImpl implements VisitormanagementRestService {
+
+  @Override
+  public String returnResponseToClient() {
+
+    return "Welcome to REST API world";
+  }
+
+}
+
+---- 
+Now insert the copied text into the new file.
+
+The next step is to save the file by selecting *Save* or *Save as* in the file context menu or by using the keyboard shortcut ctrl+s.
+A file explorer window opens.
+You should check if you are currently in the right directory where you want to save *devonfw/workspaces/main/httprestserver/core/src/main/java/com/example/application/httprestserver/visitormanagement/service/impl/rest/VisitormanagementRestServiceImpl.java*. 
+Select the directory `devonfw/workspaces/main/httprestserver/core/src/main/java/com/example/application/httprestserver/visitormanagement/service/impl/rest`. If the directory does not exist, create the missing folders or run through the previous steps from the wiki again.
+To save the file specify the name of the file. Paste `VisitormanagementRestServiceImpl.java` in the text field *File name:*. 
+The last step is to save the file with the *Save* button in the bottom right corner and VisitormanagementRestServiceImpl.java has been created and filled with some data.
+
+
+Here , you can see "VisitormanagementRestServiceImpl.java" is annotated with @Named to make it a spring-bean. To get return response to client "returnResponseToClient()" can be accessed via HTTP GET under the URL path "/visitormanagement/v1/clientrequest". It will return its result (String) as JSON (see @Produces in VisitormanagementRestService).
+== Modify properties files
+Now, you will configure port in application properties.
+
+
+==== Prerequisites
+* Any editor that can edit files
+
+==== Changing of application.properties in any Editor
+
+
+To change the file application.properties, you have to open it in any editor. 
+Open the editor and choose in the file context menu in the top left corner *Open ...* mostly also keyboard shortcut ctrl+o works. 
+Based on your operating system a window with the file explorer opens. You have to navigate to application.properties and select it.  Select the right folder manually by selecting the folders from the path `devonfw/workspaces/main/httprestserver/core/src/main/resources` and select the file `application.properties`. 
+You confirm this with the *Open* button in the bottom right corner application.properties will be opened in a new editor window.
+
+Copy the following text.
+[source, ]
+----
+# This is the configuration file shipped with the application that contains reasonable defaults.
+# Environment specific configurations are configured in config/application.properties.
+# If you are running in a servlet container you may add this to lib/config/application.properties in case you do not
+# want to touch the WAR file.
+
+server.port=8081
+server.servlet.context-path=/httprestserver
+spring.application.name=httprestserver
+
+security.expose.error.details=false
+
+spring.jpa.hibernate.ddl-auto=validate
+
+# Datasource for accessing the database
+# https://github.com/spring-projects/spring-boot/blob/d3c34ee3d1bfd3db4a98678c524e145ef9bca51c/spring-boot-project/spring-boot/src/main/java/org/springframework/boot/jdbc/DatabaseDriver.java
+spring.jpa.database=h2
+# spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+# spring.datasource.driver-class-name=org.h2.Driver
+spring.datasource.username=sa
+
+# Hibernate NamingStrategy has been deprecated and then removed in favor of two step naming strategy ImplicitNamingStrategy and PhysicalNamingStrategy
+spring.jpa.hibernate.naming.implicit-strategy=org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
+spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+# https://github.com/devonfw/devon4j/issues/65
+# https://vladmihalcea.com/the-open-session-in-view-anti-pattern/
+spring.jpa.open-in-view=false
+
+# to prevent that Spring Boot launches batch jobs on startup
+# might otherwise lead to errors if job parameters are needed (or lead to unwanted modifications and longer startup times)
+# see http://stackoverflow.com/questions/22318907/how-to-stop-spring-batch-scheduled-jobs-from-running-at-first-time-when-executin
+spring.batch.job.enabled=false
+
+# Flyway for Database Setup and Migrations
+spring.flyway.locations=classpath:db/migration
+
+
+----
+
+
+Now insert the copied text into the opened application.properties. 
+The final step is to save the file by selecting *Save* in the file context menu or by using the keyboard shortcut ctrl+s and application.properties has been changed.
+
+
+
+
+
+=== Changing of the application.properties File
+
+
+==== Prerequisites
+* Any editor that can edit files
+
+==== Changing of application.properties in any Editor
+
+
+To change the file application.properties, you have to open it in any editor. 
+Open the editor and choose in the file context menu in the top left corner *Open ...* mostly also keyboard shortcut ctrl+o works. 
+Based on your operating system a window with the file explorer opens. You have to navigate to application.properties and select it.  Select the right folder manually by selecting the folders from the path `devonfw/workspaces/main/httprestserver/core/src/main/resources/config` and select the file `application.properties`. 
+You confirm this with the *Open* button in the bottom right corner application.properties will be opened in a new editor window.
+
+Copy the following text.
+[source, ]
+----
+# This is the spring boot configuration file for development. It will not be included into the application.
+# In order to set specific configurations in a regular installed environment create an according file
+# config/application.properties in the server. If you are deploying the application to a servlet container as untouched
+# WAR file you can locate this config folder in ${symbol_dollar}{CATALINA_BASE}/lib. If you want to deploy multiple applications to
+# the same container (not recommended by default) you need to ensure the WARs are extracted in webapps folder and locate
+# the config folder inside the WEB-INF/classes folder of the webapplication.
+
+server.port=8081
+server.servlet.context-path=/httprestserver
+
+# Datasource for accessing the database
+# See https://github.com/devonfw/devon4j/blob/develop/documentation/guide-configuration.asciidoc#security-configuration
+#jasypt.encryptor.password=none
+#spring.datasource.password=ENC(7CnHiadYc0Wh2FnWADNjJg==)
+spring.datasource.password=
+spring.datasource.url=jdbc:h2:./.httprestserver;
+
+# print SQL to console for debugging (e.g. detect N+1 issues)
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# Enable JSON pretty printing
+spring.jackson.serialization.INDENT_OUTPUT=true
+
+# Flyway for Database Setup and Migrations
+spring.flyway.enabled=true
+spring.flyway.clean-on-validation-error=true
+
+----
+
+
+Now insert the copied text into the opened application.properties. 
+The final step is to save the file by selecting *Save* in the file context menu or by using the keyboard shortcut ctrl+s and application.properties has been changed.
+
+
+
+== Build and Start devon4j REST Server
+You have successfully built the REST-server. Now, you have to start the build and then, start the server as mentioned below.
+
+
+==== Prerequisites
+
+* You need to have Maven installed. If not already installed, you can download it https://maven.apache.org/download.cgi[here]. Alternativly, you can make use of the devonfw-ide, where you can install Maven directly to your workspace. For more details on how to do that, see the https://devonfw.com/website/pages/docs/devonfw-ide-introduction.asciidoc.html#setup.asciidoc[devonfw-ide setup].
+
+==== Execution
+
+Now move to your project directory manually or by executing `cd C:\devonfw\workspaces\main\tutorial-compiler\build\working\devonfw\workspaces\main\httprestserver` in the terminal.
+Next, use the following command to build the java project.
+
+`mvn clean install -Dmaven.test.skip=true`
+
+The maven command 'clean' will clear the target directory beforehand. So your build will start from a clean state.
+Install will then compile, test and package your Java project and copy your built .jar/.war file into your local Maven repository.
+
+We do not need to execute the test cases, so we can skip them by using the option '-Dmaven.test.skip=true'.
+
+
+
+
+
+
+=== Run Java Server
+
+
+
+=== Prerequisites
+* Maven (can be included in your devonfw environment)
+
+=== Starting the server
+
+First, change the current working directory to where your server is located, i.e. `cd C:\devonfw\workspaces\main\tutorial-compiler\build\working\devonfw\workspaces\main\httprestserver\server`.
+
+Afterwards, use maven to start the server: `mvn spring-boot:run`.
+This command will start the Java server.
+
+
+
+=== Startup Assertion
+
+You can check if the server is running correctly by checking if `localhost:8081/httprestserver` is accessible by either using a tool like `curl`, `Postman` or simply accessing the service via your webbrowser.
+
+Example: `curl -Is localhost:8081/ | head -n 1`
+
+This command should return an `200 OK` header if the service is available.
+
+
+
+Once, Java server starts running. To test REST-server follow below steps:
+* Click on "+" next to terminal tab
+* Select "select port to view host"
+* Enter the port number "8081" 
+* In the url, append "/httprestserver/services/rest/visitormanagement/v1/clientrequest/"
+* Enter username as "admin" and password as "admin"
+* You will be able to see response "Welcome to REST API world"
+In next step, You have to create devon4j service Client.
+
+
+== Create devon4j REST Client
+To create devon4j service Client. First, You need to create a sample devon4j project.
+
+
+==== Prerequisites
+
+In order to create a new application you must use the archetype provided by devon4j which uses the https://maven.apache.org/guides/introduction/introduction-to-archetypes.html[maven archetype functionality].
+
+To create a new application, you should have installed devonfw-ide. Follow the https://devonfw.com/website/pages/docs/devonfw-ide-introduction.asciidoc.html[devonfw-ide] documentation to install the same.
+
+==== Create the project
+
+Now you can use devonfw to setup a java project for you by executing the following devon command in terminal.
+
+`devon java create com.example.application.httprestclient`
+
+There is also is also an alternative way, where you can customize the project setup with optional parameters. More informations you will find https://devonfw.com/website/pages/docs/devon4j.asciidoc_tutorials.html[here].
+
+==== What is generated?
+
+The application template (archetype) generates a Maven multi-module project. It has the following modules:
+
+- *api*: module with the API (REST service interfaces, transfer-objects, datatypes, etc.) to be imported by other apps as a maven dependency in order to invoke and consume the offered (micro)services.
+
+- *core*: maven module containing the core of the application.
+
+- *batch*: optional module for batch(es)
+
+- *server*: module that bundles the entire app (core with optional batch) as a WAR file.
+
+- *ear*: optional maven module is responsible to packaging the application as a EAR file.
+
+The toplevel pom.xml of the generated project has the following features:
+
+- Properties definition: Spring-boot version, Java version, etc.
+
+- Modules definition for the modules (described above)
+
+- Dependency management: define versions for dependencies of the technology stack that are recommended and work together in a compatible way.
+
+- Maven plugins with desired versions and configuration
+
+- Profiles for https://devonfw.com/website/pages/docs/devon4j.asciidoc_guides.html#guide-testing.asciidoc[test stages]
+
+Then, You need to add required dependency to your application.
+
+Since in this tutorial you will build client on Synchronous call so, you have to add dependency for synchronous consuming REST services via Apache CXF (Java8+)
+You will add below dependency in core folder pom.xml
+
+----
+<dependency>
+  <groupId>com.devonfw.java.starters</groupId>
+  <artifactId>devon4j-starter-cxf-client-rest</artifactId>
+</dependency>
+
+----
+
+
+== Modify POM file
+Modify pom.xml as below:
+
+
+==== Prerequisites
+* Any editor that can edit files
+
+==== Changing of pom.xml in any Editor
+
+
+To change the file pom.xml, you have to open it in any editor. 
+Open the editor and choose in the file context menu in the top left corner *Open ...* mostly also keyboard shortcut ctrl+o works. 
+Based on your operating system a window with the file explorer opens. You have to navigate to pom.xml and select it.  Select the right folder manually by selecting the folders from the path `devonfw/workspaces/main/httprestclient/core` and select the file `pom.xml`. 
+You confirm this with the *Open* button in the bottom right corner pom.xml will be opened in a new editor window.
+
+Copy the following text.
+[source, ]
+----
+<dependencies>
+<dependency>
+  <groupId>com.devonfw.java.starters</groupId>
+  <artifactId>devon4j-starter-cxf-client-rest</artifactId>
+</dependency> 
+
+----
+
+
+To replace the content with a specific placeholder you have to locate the placeholder in the file. The fastest way is to search through the opened file and replace *&lt;dependencies&gt;* with the new content.
+
+The final step is to save the file by selecting *Save* in the file context menu or by using the keyboard shortcut ctrl+s and pom.xml has been changed.
+
+
+
+== Create service to invoke server
+Now, You will create a Java interface VisitormanagementRestService to invoke inside client.
+
+
+==== Prerequisites
+* Existing folder you want to create the file. (If the folder doesn't exist you can create it from with the editor).
+* Any Editor that can edit files
+
+==== Creating VisitormanagementRestService.java in any Editor
+
+Create VisitormanagementRestService.java in any Editor and insert the following data into it. .
+
+Opening a new file can be done by going to the file context menu in the top left corner of the editor and select *New* or *New File* or mostly also the keyboard shortcut ctrl+n will also work.
+The editor opens a new editor window for an untitled file that can be edited now.
+ 
+Copy the following text.
+[source, java]
+----
+package com.example.application.httprestclient.general.service.api.rest;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+@Path("/visitormanagement/v1")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+public interface VisitormanagementRestService {
+
+  @GET
+  @Path("/clientrequest/")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  public String returnResponseToClient();
+
+}
+---- 
+Now insert the copied text into the new file.
+
+The next step is to save the file by selecting *Save* or *Save as* in the file context menu or by using the keyboard shortcut ctrl+s.
+A file explorer window opens.
+You should check if you are currently in the right directory where you want to save *devonfw/workspaces/main/httprestclient/api/src/main/java/com/example/application/httprestclient/general/service/api/rest/VisitormanagementRestService.java*. 
+Select the directory `devonfw/workspaces/main/httprestclient/api/src/main/java/com/example/application/httprestclient/general/service/api/rest`. If the directory does not exist, create the missing folders or run through the previous steps from the wiki again.
+To save the file specify the name of the file. Paste `VisitormanagementRestService.java` in the text field *File name:*. 
+The last step is to save the file with the *Save* button in the bottom right corner and VisitormanagementRestService.java has been created and filled with some data.
+
+
+== Create service for CXF REST Client
+Now, you will create service for client i.e. TestRestService.java to provide functionality using JAX-RS standard.
+
+
+==== Prerequisites
+* Existing folder you want to create the file. (If the folder doesn't exist you can create it from with the editor).
+* Any Editor that can edit files
+
+==== Creating TestRestService.java in any Editor
+
+Create TestRestService.java in any Editor and insert the following data into it. .
+
+Opening a new file can be done by going to the file context menu in the top left corner of the editor and select *New* or *New File* or mostly also the keyboard shortcut ctrl+n will also work.
+The editor opens a new editor window for an untitled file that can be edited now.
+ 
+Copy the following text.
+[source, java]
+----
+package com.example.application.httprestclient.general.service.api.rest;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+@Path("/testrest/v1")
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+public interface TestRestService {
+
+  @GET
+  @Path("/response/")
+  public String showResponse();
+
+  @GET
+  @Path("/verify/")
+  public String verifyServiceWork();
+}
+
+---- 
+Now insert the copied text into the new file.
+
+The next step is to save the file by selecting *Save* or *Save as* in the file context menu or by using the keyboard shortcut ctrl+s.
+A file explorer window opens.
+You should check if you are currently in the right directory where you want to save *devonfw/workspaces/main/httprestclient/api/src/main/java/com/example/application/httprestclient/general/service/api/rest/TestRestService.java*. 
+Select the directory `devonfw/workspaces/main/httprestclient/api/src/main/java/com/example/application/httprestclient/general/service/api/rest`. If the directory does not exist, create the missing folders or run through the previous steps from the wiki again.
+To save the file specify the name of the file. Paste `TestRestService.java` in the text field *File name:*. 
+The last step is to save the file with the *Save* button in the bottom right corner and TestRestService.java has been created and filled with some data.
+
+
+== Create implementation class for client's service
+Now, you will create TestRestServiceImpl, the implementation class of TestRestService using JAX-RS standard.
+
+
+
+==== Prerequisites
+* Existing folder you want to create the file. (If the folder doesn't exist you can create it from with the editor).
+* Any Editor that can edit files
+
+==== Creating TestRestServiceImpl.java in any Editor
+
+Create TestRestServiceImpl.java in any Editor and insert the following data into it. .
+
+Opening a new file can be done by going to the file context menu in the top left corner of the editor and select *New* or *New File* or mostly also the keyboard shortcut ctrl+n will also work.
+The editor opens a new editor window for an untitled file that can be edited now.
+ 
+Copy the following text.
+[source, java]
+----
+package com.example.application.httprestclient.general.service.impl.rest;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import com.devonfw.module.service.common.api.client.ServiceClientFactory;
+import com.devonfw.module.service.common.api.client.config.ServiceClientConfigBuilder;
+import com.example.application.httprestclient.general.service.api.rest.TestRestService;
+import com.example.application.httprestclient.general.service.api.rest.VisitormanagementRestService;
+
+@Named("TestRestService")
+public class TestRestServiceImpl implements TestRestService {
+
+  @Inject
+  private ServiceClientFactory serviceClientFactory;
+
+  @Override
+  public String showResponse() {
+
+    String result = callSynchronous();
+    System.out.println("**********inside client method***********");
+    System.out.println(result);
+    System.out.println("************Thank you for choosing devon4j ****************");
+    return result;
+
+  }
+
+  private String callSynchronous() {
+
+    System.out.println("***********inside synchronous call************");
+    VisitormanagementRestService visitormanagementRestService = this.serviceClientFactory.create(
+        VisitormanagementRestService.class,
+        new ServiceClientConfigBuilder().authBasic().userLogin("admin").userPassword("admin").buildMap());
+    // call of service over the wire, synchronously blocking until result is received or error occurred
+    String resultFromAPICall = visitormanagementRestService.returnResponseToClient();
+    System.out.println("************************got result from api" + resultFromAPICall + "***************");
+    return resultFromAPICall;
+  }
+
+  @Override
+  public String verifyServiceWork() {
+
+    return "Verified... service is working";
+  }
+
+}
+
+---- 
+Now insert the copied text into the new file.
+
+The next step is to save the file by selecting *Save* or *Save as* in the file context menu or by using the keyboard shortcut ctrl+s.
+A file explorer window opens.
+You should check if you are currently in the right directory where you want to save *devonfw/workspaces/main/httprestclient/core/src/main/java/com/example/application/httprestclient/general/service/impl/rest/TestRestServiceImpl.java*. 
+Select the directory `devonfw/workspaces/main/httprestclient/core/src/main/java/com/example/application/httprestclient/general/service/impl/rest`. If the directory does not exist, create the missing folders or run through the previous steps from the wiki again.
+To save the file specify the name of the file. Paste `TestRestServiceImpl.java` in the text field *File name:*. 
+The last step is to save the file with the *Save* button in the bottom right corner and TestRestServiceImpl.java has been created and filled with some data.
+
+
+As you can see synchronous invocation of a service is very simple and type-safe. The actual call of showResponse will technically call the remote service(i.e. VisitormanagementRestService) over the wire ( via HTTP) including marshaling the arguments (converting String to JSON) and un-marshalling the result (e.g. converting the received JSON to String).
+Here in TestRestServiceImpl, there is a method "callSynchronous" which will call the VisitormanagementRestService and return the object of VisitormanagementRestService to visitormanagementRestService.
+With visitormanagementRestService, it is calling the method "returnResponseToClient()" of server.
+The response from server will be stored in "resultFromAPICall" as the return type of result is String.
+After getting response, you can handle the response further in your implementation. Here, you can see that response is getting handled in "showResponse" method.
+== Modify properties for server configuration
+An application needs to be configurable in order to allow internal setup but also to allow externalized configuration of a deployed package (e.g. integration into runtime environment). 
+Now, You need to modify the content of existing properties files and add configuration for Server.
+
+
+==== Prerequisites
+* Any editor that can edit files
+
+==== Changing of application.properties in any Editor
+
+
+To change the file application.properties, you have to open it in any editor. 
+Open the editor and choose in the file context menu in the top left corner *Open ...* mostly also keyboard shortcut ctrl+o works. 
+Based on your operating system a window with the file explorer opens. You have to navigate to application.properties and select it.  Select the right folder manually by selecting the folders from the path `devonfw/workspaces/main/httprestclient/core/src/main/resources` and select the file `application.properties`. 
+You confirm this with the *Open* button in the bottom right corner application.properties will be opened in a new editor window.
+
+Copy the following text.
+[source, ]
+----
+# This is the configuration file shipped with the application that contains reasonable defaults.
+# Environment specific configurations are configured in config/application.properties.
+# If you are running in a servlet container you may add this to lib/config/application.properties in case you do not
+# want to touch the WAR file.
+
+server.port=8080
+spring.application.name=httprestclient
+server.servlet.context-path=/httprestclient
+
+security.expose.error.details=false
+
+spring.jpa.hibernate.ddl-auto=validate
+
+# Datasource for accessing the database
+# https://github.com/spring-projects/spring-boot/blob/d3c34ee3d1bfd3db4a98678c524e145ef9bca51c/spring-boot-project/spring-boot/src/main/java/org/springframework/boot/jdbc/DatabaseDriver.java
+spring.jpa.database=h2
+# spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+# spring.datasource.driver-class-name=org.h2.Driver
+spring.datasource.username=sa
+
+# Hibernate NamingStrategy has been deprecated and then removed in favor of two step naming strategy ImplicitNamingStrategy and PhysicalNamingStrategy
+spring.jpa.hibernate.naming.implicit-strategy=org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
+spring.jpa.hibernate.naming.physical-strategy=org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+
+# https://github.com/devonfw/devon4j/issues/65
+# https://vladmihalcea.com/the-open-session-in-view-anti-pattern/
+spring.jpa.open-in-view=false
+
+# to prevent that Spring Boot launches batch jobs on startup
+# might otherwise lead to errors if job parameters are needed (or lead to unwanted modifications and longer startup times)
+# see http://stackoverflow.com/questions/22318907/how-to-stop-spring-batch-scheduled-jobs-from-running-at-first-time-when-executin
+spring.batch.job.enabled=false
+
+# Flyway for Database Setup and Migrations
+spring.flyway.locations=classpath:db/migration
+
+# rest client setup
+service.client.default.url=https://[[HOST_SUBDOMAIN]]-8081-[[KATACODA_HOST]].environments.katacoda.com/httprestserver/services/rest
+service.client.app.httprestserver.url=https://[[HOST_SUBDOMAIN]]-8081-[[KATACODA_HOST]].environments.katacoda.com/httprestserver/services/rest
+service.client.default.timeout.connection=120
+service.client.default.timeout.response=3600
+service.client.app.httprestserver.auth=basic
+service.client.app.httprestserver.user.login=admin
+service.client.app.httprestserver.user.password=admin
+----
+
+
+Now insert the copied text into the opened application.properties. 
+The final step is to save the file by selecting *Save* in the file context menu or by using the keyboard shortcut ctrl+s and application.properties has been changed.
+
+
+
+
+
+=== Changing of the application.properties File
+
+
+==== Prerequisites
+* Any editor that can edit files
+
+==== Changing of application.properties in any Editor
+
+
+To change the file application.properties, you have to open it in any editor. 
+Open the editor and choose in the file context menu in the top left corner *Open ...* mostly also keyboard shortcut ctrl+o works. 
+Based on your operating system a window with the file explorer opens. You have to navigate to application.properties and select it.  Select the right folder manually by selecting the folders from the path `devonfw/workspaces/main/httprestclient/core/src/main/resources/config` and select the file `application.properties`. 
+You confirm this with the *Open* button in the bottom right corner application.properties will be opened in a new editor window.
+
+Copy the following text.
+[source, ]
+----
+# This is the spring boot configuration file for development. It will not be included into the application.
+# In order to set specific configurations in a regular installed environment create an according file
+# config/application.properties in the server. If you are deploying the application to a servlet container as untouched
+# WAR file you can locate this config folder in ${symbol_dollar}{CATALINA_BASE}/lib. If you want to deploy multiple applications to
+# the same container (not recommended by default) you need to ensure the WARs are extracted in webapps folder and locate
+# the config folder inside the WEB-INF/classes folder of the webapplication.
+
+server.port=8080
+server.servlet.context-path=/httprestclient
+
+# Datasource for accessing the database
+# See https://github.com/devonfw/devon4j/blob/develop/documentation/guide-configuration.asciidoc#security-configuration
+#jasypt.encryptor.password=none
+#spring.datasource.password=ENC(7CnHiadYc0Wh2FnWADNjJg==)
+spring.datasource.password=
+spring.datasource.url=jdbc:h2:./.httprestclient;
+
+# print SQL to console for debugging (e.g. detect N+1 issues)
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+
+# Enable JSON pretty printing
+spring.jackson.serialization.INDENT_OUTPUT=true
+
+# Flyway for Database Setup and Migrations
+spring.flyway.enabled=true
+spring.flyway.clean-on-validation-error=true
+
+# rest client setup
+service.client.default.url=https://[[HOST_SUBDOMAIN]]-8081-[[KATACODA_HOST]].environments.katacoda.com/httprestserver/services/rest
+service.client.app.httprestserver.url=https://[[HOST_SUBDOMAIN]]-8081-[[KATACODA_HOST]].environments.katacoda.com/httprestserver/services/rest
+service.client.default.timeout.connection=120
+service.client.default.timeout.response=3600
+service.client.app.httprestserver.auth=basic
+service.client.app.httprestserver.user.login=admin
+service.client.app.httprestserver.user.password=admin
+
+----
+
+
+Now insert the copied text into the opened application.properties. 
+The final step is to save the file by selecting *Save* in the file context menu or by using the keyboard shortcut ctrl+s and application.properties has been changed.
+
+## Service Discovery
+**service.client.default.url** :- It is used to set the default url of server and it is added for service discovery.
+
+**service.client.app.httprestserver.url** :- This property provide base url of REST in your application. It follows format such as "service.client.app.«application».url". Here, «application» refers to the technical name of the application providing the service.
+
+## Timeouts
+**service.client.default.timeout.connection** :- It is used to set the default timeout for particular connection.
+
+**service.client.default.timeout.response** :- It is used to set the default timeout for particular response.
+
+## Headers
+**service.client.app.httprestserver.auth** :- It is used for customization of Service Header. Here it is used for basic authentication.
+
+## Authentication
+**service.client.app.httprestserver.user.login** :- It is used to set username of server for authentication.
+
+**service.client.app.httprestserver.user.password** :- It is used to set password.
+
+
+== Build devon4j CXF REST Client
+Now, Let's build and start the service client application.
+This might take some time for application to start.
+
+
+==== Prerequisites
+
+* You need to have Maven installed. If not already installed, you can download it https://maven.apache.org/download.cgi[here]. Alternativly, you can make use of the devonfw-ide, where you can install Maven directly to your workspace. For more details on how to do that, see the https://devonfw.com/website/pages/docs/devonfw-ide-introduction.asciidoc.html#setup.asciidoc[devonfw-ide setup].
+
+==== Execution
+
+Now move to your project directory manually or by executing `cd C:\devonfw\workspaces\main\tutorial-compiler\build\working\devonfw\workspaces\main\httprestclient` in the terminal.
+Next, use the following command to build the java project.
+
+`mvn clean install -Dmaven.test.skip=true`
+
+The maven command 'clean' will clear the target directory beforehand. So your build will start from a clean state.
+Install will then compile, test and package your Java project and copy your built .jar/.war file into your local Maven repository.
+
+We do not need to execute the test cases, so we can skip them by using the option '-Dmaven.test.skip=true'.
+
+
+* Once, application builds successfully. Open new terminal by clicking "+" and wait for it to load.
+* Now, Copy and execute below command to navigate into client server.
+  `cd devonfw/workspaces/main/httprestclient/server`
+* Now, Copy and execute below command to start the application.
+  `devon mvn spring-boot:run`
+
+To test Synchronous method, follow below steps.
+* Click on "+" next to terminal tab
+* Select "select port to view host"
+* Enter the port number "8080" 
+* In the url, append "/httprestclient/services/rest/testrest/v1/response/"
+* Enter username as "admin" and password as "admin"
+* You will be able to see response "Welcome to REST API world"
+
+
+== Conclusion
+
+
+You have successfully created devon4j CXF REST Client.
+For more details on devon4j follow https://devonfw.com/website/pages/docs/devon4j.asciidoc.html
